@@ -1,4 +1,4 @@
-# genesis
+# Genesis
 
 A new Flutter project.
 
