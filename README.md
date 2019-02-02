@@ -4,7 +4,7 @@ A new Flutter project.
 
 ## Getting Started
 
-There is an install guide present in the Wiki which you can refer to install all the softwares required. 
+There is an **Flutter Install Guide** present in the Wiki which you can refer to install all the softwares required. 
 
 This project is a starting point for a Flutter application.
 
