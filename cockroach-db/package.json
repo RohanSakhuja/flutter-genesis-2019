@@ -1,0 +1,29 @@
+{
+  "name": "mlh-localhost-cockroach",
+  "version": "0.0.1",
+  "description": "The sample app to accompany the MLH Localhost: Building Scalable Apps with CockroachDB Workshop.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/MLH/mlh-localhost-cockroachdb.git"
+  },
+  "keywords": [
+    "MLH",
+    "MLH",
+    "Localhost",
+    "CockroachDB"
+  ],
+  "author": "Major League Hacking <hi@mlh.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MLH/mlh-localhost-cockroachdb/issues"
+  },
+  "homepage": "https://github.com/MLH/mlh-localhost-cockroachdb#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "pg": "^7.4.3"
+  }
+}
