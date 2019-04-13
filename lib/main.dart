@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:transparent_image/transparent_image.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(new MyApp());
 
@@ -27,45 +29,47 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => new HomePageState();
 }
 
+class UserDetails {
+  String id;
+  String username;
+  String name;
+  String email;
+  String bestShot;
+  String profilePicture;
+
+  UserDetails(
+      {this.id,
+      this.username,
+      this.name,
+      this.email,
+      this.bestShot,
+      this.profilePicture});
+}
+
 class HomePageState extends State<HomePage> {
   List<InfoTile> tiles = new List();
 
-  HomePageState() {
-    tiles.add(InfoTile(
-        name: 'Rohan',
-        imageUrl:
-            'https://cdn.fstoppers.com/styles/large-16-9/s3/lead/2018/06/ultra-wide-mistakes-lead-image.jpg',
-        isFavorite: true));
-    tiles.add(InfoTile(
-        name: 'sdasdasd',
-        imageUrl:
-            'https://images.theconversation.com/files/125391/original/image-20160606-13080-s7o3qu.jpg?ixlib=rb-1.1.0&rect=273%2C0%2C2639%2C1379&q=45&auto=format&w=926&fit=clip',
-        isFavorite: false));
-    tiles.add(InfoTile(
-        name: 'asdasdas',
-        imageUrl:
-            'https://images.theconversation.com/files/125391/original/image-20160606-13080-s7o3qu.jpg?ixlib=rb-1.1.0&rect=273%2C0%2C2639%2C1379&q=45&auto=format&w=926&fit=clip',
-        isFavorite: false));
-    tiles.add(InfoTile(
-        name: 'fdgdfg',
-        imageUrl:
-            'https://images.theconversation.com/files/125391/original/image-20160606-13080-s7o3qu.jpg?ixlib=rb-1.1.0&rect=273%2C0%2C2639%2C1379&q=45&auto=format&w=926&fit=clip',
-        isFavorite: true));
-    tiles.add(InfoTile(
-        name: 'dfgdfg',
-        imageUrl:
-            'https://images.theconversation.com/files/125391/original/image-20160606-13080-s7o3qu.jpg?ixlib=rb-1.1.0&rect=273%2C0%2C2639%2C1379&q=45&auto=format&w=926&fit=clip',
-        isFavorite: false));
-    tiles.add(InfoTile(
-        name: 'cbcvbcv',
-        imageUrl:
-            'https://images.theconversation.com/files/125391/original/image-20160606-13080-s7o3qu.jpg?ixlib=rb-1.1.0&rect=273%2C0%2C2639%2C1379&q=45&auto=format&w=926&fit=clip',
-        isFavorite: true));
-    tiles.add(InfoTile(
-        name: 'rrrrrrrrrrrrrrrrrrrrrr',
-        imageUrl:
-            'https://images.theconversation.com/files/125391/original/image-20160606-13080-s7o3qu.jpg?ixlib=rb-1.1.0&rect=273%2C0%2C2639%2C1379&q=45&auto=format&w=926&fit=clip',
-        isFavorite: true));
+  Future<bool> getAllUsers() async {
+    String url = 'https://genesis.iecsemanipal.com/getAllUsers';
+    var response = await http.get(url);
+    print(response.body);
+    var res = json.decode(response.body);
+    List<UserDetails> users = new List();
+    for (var entry in res) {
+      print(entry);
+      users.add(new UserDetails(
+          id: entry['id'],
+          username: entry['username'],
+          name: entry['name'],
+          email: entry['email'],
+          bestShot: entry['best_shot'],
+          profilePicture: entry['profile_pic']));
+    }
+    tiles.clear();
+    for (UserDetails item in users) {
+      tiles.add(InfoTile(name: item.name, imageUrl: item.bestShot));
+    }
+    return true;
   }
 
   @override
@@ -107,55 +111,48 @@ class HomePageState extends State<HomePage> {
           ),
           Container(
             color: Colors.white,
-            child: new ListView.builder(
-              shrinkWrap: true,
-              primary: false,
-              itemCount: tiles.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20.0),
-                        topRight: Radius.circular(5.0),
-                        bottomLeft: Radius.circular(5.0),
-                        bottomRight: Radius.circular(20.0),
-                      ),
-                      child: Stack(
-                        children: <Widget>[
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  new MaterialPageRoute(
-                                      builder: (context) => new ProfilePage()));
-                            },
-                            child: Image.network(
-                              tiles[index].imageUrl,
-                              fit: BoxFit.cover,
-                              height: 200.0,
+            child: FutureBuilder(
+              future: getAllUsers(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data) {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    primary: false,
+                    itemCount: tiles.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20.0),
+                              topRight: Radius.circular(5.0),
+                              bottomLeft: Radius.circular(5.0),
+                              bottomRight: Radius.circular(20.0),
                             ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: IconButton(
-                              icon: Icon(
-                                tiles[index].isFavorite
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: Colors.red,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  tiles[index].isFavorite =
-                                      !tiles[index].isFavorite;
-                                });
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    new MaterialPageRoute(
+                                        builder: (context) =>
+                                            new ProfilePage()));
                               },
+                              child: Image.network(
+                                tiles[index].imageUrl,
+                                fit: BoxFit.cover,
+                                height: 200.0,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ));
+                          ));
+                    },
+                  );
+                } else {
+                  return Container(
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
               },
             ),
           ),
@@ -166,12 +163,19 @@ class HomePageState extends State<HomePage> {
 }
 
 class ProfilePage extends StatefulWidget {
+  String profileUrl;
+  String username;
+  String name;
+  String email;
+  String bestShot;
+
+  ProfilePage({this.profileUrl, this.username, this.name, this.email, this.bestShot});
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage>{
-
+class _ProfilePageState extends State<ProfilePage> {
   List temp = new List.generate(
       10,
       (index) => ListTile(
@@ -186,8 +190,7 @@ class _ProfilePageState extends State<ProfilePage>{
         height: MediaQuery.of(context).size.height * 0.35,
         decoration: BoxDecoration(
           image: DecorationImage(
-              image: NetworkImage(
-                  "https://www.shutterbug.com/images/17/2pm92117.png"),
+              image: NetworkImage(widget.bestShot),
               fit: BoxFit.cover),
         ),
         child: Column(
@@ -210,9 +213,7 @@ class _ProfilePageState extends State<ProfilePage>{
               child: CircleAvatar(
                 minRadius: 30.0,
                 maxRadius: 70.0,
-                backgroundImage: NetworkImage(
-                  "https://www.shutterbug.com/images/styles/600_wide/public/Beginner-Photography-Mistakes-Peter-McKinnon_0.jpg",
-                ),
+                backgroundImage: NetworkImage(widget.profileUrl),
               ),
             ),
           ],
@@ -221,47 +222,12 @@ class _ProfilePageState extends State<ProfilePage>{
       Container(
         color: Color.fromRGBO(11, 7, 59, 0.8),
         padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: Column(
           children: <Widget>[
-            Column(
-              children: <Widget>[
-                Text(
-                  'Followers',
-                  style: TextStyle(color: Colors.white),
-                ),
-                Text(
-                  '123k',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ],
-            ),
-            Column(
-              children: <Widget>[
-                Text(
-                  'Following',
-                  style: TextStyle(color: Colors.white),
-                ),
-                Text(
-                  '6.5k',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ],
-            ),
-            Column(
-              children: <Widget>[
-                Text(
-                  'Shots',
-                  style: TextStyle(color: Colors.white),
-                ),
-                Text(
-                  '824',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ],
-            ),
+            Text(widget.name, style: TextStyle(fontSize: 20.0, color: Colors.white),),
+            Text(widget.email, style: TextStyle(fontSize: 20.0, color: Colors.white),),
           ],
-        ),
+        )
       ),
       GridView.count(
         primary: false,

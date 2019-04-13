@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   transparent_image:
+  http:
 
 dev_dependencies:
   flutter_test:
